@@ -1,20 +1,29 @@
 name: Deploy to Firebase
 
 on:
-  pull_request:
-    types: [closed]
+  push:
     branches:
       - main
 
 jobs:
-  deploy:
+  build_and_deploy:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
-
+    
     steps:
     - name: Checkout Repo
-      uses: actions/checkout@master
-
+      uses: actions/checkout@v2
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16'
+    
+    - name: Install Dependencies
+      run: npm ci
+    
+    - name: Build  # Only if you have a build script in your package.json
+      run: npm run build
+    
     - name: Deploy to Firebase
       uses: w9jds/firebase-action@master
       with:
