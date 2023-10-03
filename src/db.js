@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const functions = require('firebase-functions');
+const URI = functions.config().mongo.uri || process.env.MONGO_URI;
 
 let instance = null;
 
@@ -13,7 +15,7 @@ class Database {
 
   async connect() {
     try {
-      await mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+      await mongoose.connect(URI, { useNewUrlParser: true, useUnifiedTopology: true });
       console.log('Connected to MongoDB');
     } catch (error) {
       console.error('Database connection failed:', error);
