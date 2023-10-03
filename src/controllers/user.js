@@ -125,10 +125,10 @@ exports.sendEmailToken = async (req, res) => {
     const token = jwt.generateToken(user)
 
     // Create a link to the front end TODO
-    const link = token
+    const link = `https://marist-weather-dashboard.vercel.app/reset-password/?email=${email}&access-token=${token}`
 
     // Send an email
-    emailService.sendEmail(email, "Password Change Link", "Click this link to reset password:\n" + token)
+    emailService.sendEmail(email, "Password Change Link", `Click this link to reset password: ${link}`)
 
     res.status(200).send("Sent password change email")
 

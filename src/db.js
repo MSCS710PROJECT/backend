@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const functions = require('firebase-functions');
-const URI = functions.config().mongo.uri || process.env.MONGO_URI;
+const URI = functions.config().mongo?.uri || process.env.MONGO_URI;
 
 let instance = null;
 
