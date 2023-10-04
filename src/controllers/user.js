@@ -6,11 +6,16 @@ const emailService = require('../services/email')
 exports.createUser = async (req, res) => {
     try {
       // Get user input
-      const { email, password } = req.body;
+      const { email, password, firstName, lastName, phoneNumber, alerts} = req.body;
   
       // Validate user input
-      if (!(email, password)) {
-        res.status(400).send("Email and password required");
+      if (!(email, password, firstName, lastName, phoneNumber)) {
+        res.status(400).send("Email, password, name, and phone number required");
+      }
+
+      if (!alerts)
+      {
+        alerts = false;
       }
   
       // Check if user already exists
@@ -27,12 +32,18 @@ exports.createUser = async (req, res) => {
       const user = await User.create({
         email,
         password: encryptedPassword,
+        firstName,
+        lastName,
+        phoneNumber,
+        alerts
       });
   
       // Create token
       const token = jwt.generateToken(user)
       // save user token
       user.token = token;
+      // remove the password part before sending data back
+      user.password = undefined
   
       // return new user
       res.status(201).json(user);
@@ -60,6 +71,8 @@ exports.login = async (req, res) => {
 
       // save user token
       user.token = token;
+      // remove the password part before sending data back
+      user.password = undefined
 
       // user
       res.status(200).json(user);
@@ -124,7 +137,7 @@ exports.sendEmailToken = async (req, res) => {
     // Get a new token
     const token = jwt.generateToken(user)
 
-    // Create a link to the front end TODO
+    // Create a link to the front end
     const link = `https://marist-weather-dashboard.vercel.app/reset-password/?email=${email}&access-token=${token}`
 
     // Send an email
