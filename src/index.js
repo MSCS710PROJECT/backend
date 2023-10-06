@@ -17,25 +17,23 @@ app.use(helmet());
 
 app.all('/tomorrow/*', async (req, res) => {
   try {
-    // Extract the path and query parameters from the original request
     const apiPath = req.path.replace('/tomorrow', '');
     const queryParams = { ...req.query, apikey: functions.config().tomorrowio?.key || process.env.TOMORROW_IO_API_KEY };
-    
-    // Construct the URL for the Tomorrow API
     const apiUrl = `${TOMORROW_API_BASE_URL}${apiPath}`;
-    
-    // Make a request to the Tomorrow API
-    const apiResponse = await axios({
+    const axiosConfig = {
       method: req.method,
       url: apiUrl,
       params: queryParams,
-      data: req.body,
-    });
-    
-    // Send the API response back to the client
+    };
+
+    if (['post', 'put', 'patch'].includes(req.method.toLowerCase())) {
+      axiosConfig.data = req.body;
+    }
+
+    const apiResponse = await axios(axiosConfig);
+
     res.json(apiResponse.data);
   } catch (error) {
-    console.error('Error:', error);
     res.status(500).send('Internal Server Error');
   }
 });
