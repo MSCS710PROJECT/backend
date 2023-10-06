@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/MSCS710PROJECT/backend#readme",
   "dependencies": {
-    "axios": "^1.5.0",
+    "axios": "^1.5.1",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
@@ -35,7 +35,7 @@
     "nodemailer": "^6.9.5"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1",
-    "firebase-functions-test": "^3.1.0"
+    "firebase-functions-test": "^3.1.0",
+    "nodemon": "^3.0.1"
   }
 }
