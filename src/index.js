@@ -32,8 +32,19 @@ app.all('/tomorrow/*', async (req, res) => {
 
     const apiResponse = await axios(axiosConfig);
 
+    if (apiUrl.includes("forecast") && queryParams["fields"]) {
+      for (let snapshot of apiResponse.data.timelines.hourly || apiResponse.data.timelines.daily) {
+        let newValues = {};
+        for (let attr of queryParams["fields"].split(',')) {
+          newValues[attr] = snapshot.values[attr];
+        }
+        snapshot.values = newValues;
+      }
+    }
+
     res.json(apiResponse.data);
   } catch (error) {
+    console.log(error);
     res.status(500).send('Internal Server Error');
   }
 });
