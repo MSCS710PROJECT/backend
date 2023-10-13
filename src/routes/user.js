@@ -9,5 +9,8 @@ router.post('/login', userController.login);
 router.get('/testWelcome', auth.isAuthenticated, userController.welcome);
 router.post('/resetPassword', auth.isAuthenticated, userController.changePassword)
 router.post('/forgotPassword', userController.sendEmailToken)
+router.get('/user', auth.isAuthenticated, userController.getDetails)
+router.patch('/user', auth.isAuthenticated, userController.changeDetails)
+router.delete('/user', auth.isAuthenticated, userController.deleteUser)
 
 module.exports = router;

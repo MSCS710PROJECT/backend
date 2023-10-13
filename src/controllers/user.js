@@ -12,11 +12,6 @@ exports.createUser = async (req, res) => {
       if (!(email, password, firstName, lastName, phoneNumber)) {
         res.status(400).send("Email, password, name, and phone number required");
       }
-
-      if (!alerts)
-      {
-        alerts = false;
-      }
   
       // Check if user already exists
       const oldUser = await User.findOne({ email });
@@ -87,6 +82,83 @@ exports.login = async (req, res) => {
 
 exports.welcome = async (req, res) => {
   res.status(200).send('Welcome!')
+}
+
+exports.getDetails = async (req, res) => {
+  try {
+    // Get user input
+    const { email } = req.body;
+
+    // Validate user input
+    if (!email) {
+      return res.status(400).send("Email required");
+    }
+
+    // Validate if user exist in our database
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(409).send("User does not exist");
+    }
+
+    // remove the password part before sending data back
+    user.password = undefined;
+
+    // Return user data
+    res.status(200).json(user);
+
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+exports.changeDetails = async (req, res) => {
+  try {
+    // Get user input
+    const { email } = req.body;
+
+    // Validate user input
+    if (!email) {
+      return res.status(400).send("Email required");
+    }
+
+    // Update user with data in body if exists
+    const user = await User.findOneAndUpdate({ email }, req.body, { returnDocument: "after" });
+    if (!user) {
+      return res.status(409).send("User does not exist");
+    }
+
+    // remove the password part before sending data back
+    user.password = undefined;
+
+    // Return user data
+    res.status(200).json(user);
+
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+exports.deleteUser = async (req, res) => {
+  try {
+    // Get user input
+    const { email } = req.body;
+
+    // Validate user input
+    if (!email) {
+      return res.status(400).send("Email required");
+    }
+
+    // Validate if user exist in our database
+    const user = await User.findOneAndDelete({ email });
+    if (!user) {
+      return res.status(409).send("User does not exist");
+    }
+
+    res.status(200).send("Successfully deleted user");
+
+  } catch (err) {
+    console.log(err);
+  }
 }
 
 exports.changePassword = async (req, res) => {
