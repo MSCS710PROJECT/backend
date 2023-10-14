@@ -17,7 +17,10 @@ const userSchema = new mongoose.Schema({
   metric: {
     type: Boolean,
     default: false
-  }
+  },
+
+  // saved locations
+  locations: [String]
 });
 
 module.exports = mongoose.model('User', userSchema);

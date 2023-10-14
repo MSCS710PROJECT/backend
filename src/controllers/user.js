@@ -221,3 +221,57 @@ exports.sendEmailToken = async (req, res) => {
     console.log(err)
   }
 }
+
+exports.saveLocation = async (req, res) => {
+  try {
+    // Get user input
+    const { email, location } = req.body;
+
+    // Validate user input
+    if (!(email && location)) {
+      return res.status(400).send("Email and single location required");
+    }
+
+    // Validate if user exist in our database and save new location
+    const user = await User.findOneAndUpdate({ email }, { $addToSet: { locations: location}}, { returnDocument: "after" });
+    if (!user) {
+      return res.status(409).send("User does not exist");
+    }
+
+    // remove the password part before sending data back
+    user.password = undefined;
+
+    // Return user data
+    res.status(200).json(user);
+
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+exports.deleteLocation = async (req, res) => {
+  try {
+    // Get user input
+    const { email, location } = req.body;
+
+    // Validate user input
+    if (!(email && location)) {
+      return res.status(400).send("Email and single location required");
+    }
+
+    // Validate if user exist in our database and delete location
+    const user = await User.findOneAndUpdate({ email }, { $pull: { locations: location}}, { returnDocument: "after" });
+    if (!user) {
+      return res.status(409).send("User does not exist");
+    }
+
+    // remove the password part before sending data back
+    user.password = undefined;
+
+    // Return user data
+    res.status(200).json(user);
+
+  } catch (err) {
+    console.log(err);
+  }
+}
