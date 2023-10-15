@@ -1,7 +1,8 @@
 const bcrypt = require('bcryptjs')
 const User = require('../models/user');
 const jwt = require('../auth')
-const emailService = require('../services/email')
+const emailService = require('../services/email');
+const {ObjectId} = require('mongodb');
 
 exports.createUser = async (req, res) => {
     try {
@@ -43,7 +44,10 @@ exports.createUser = async (req, res) => {
       // return new user
       res.status(201).json(user);
     } catch (err) {
-      console.log(err);
+      res.status(500).send(JSON.stringify({
+        message: 'Internal Server Error',
+        error: err
+      }));
     }
 };
 
@@ -76,7 +80,10 @@ exports.login = async (req, res) => {
 
     res.status(400).send("Invalid Credentials");
   } catch (err) {
-    console.log(err);
+    res.status(500).send(JSON.stringify({
+      message: 'Internal Server Error',
+      error: err
+    }));
   }
 }
 
@@ -86,16 +93,7 @@ exports.welcome = async (req, res) => {
 
 exports.getDetails = async (req, res) => {
   try {
-    // Get user input
-    const { email } = req.query;
-
-    // Validate user input
-    if (!email) {
-      return res.status(400).send("Email required");
-    }
-
-    // Validate if user exist in our database
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ _id: new ObjectId(req.user.id) });
     if (!user) {
       return res.status(409).send("User does not exist");
     }
@@ -107,22 +105,17 @@ exports.getDetails = async (req, res) => {
     res.status(200).json(user);
 
   } catch (err) {
-    console.log(err);
+    res.status(500).send(JSON.stringify({
+      message: 'Internal Server Error',
+      error: err
+    }));
   }
 }
 
 exports.changeDetails = async (req, res) => {
   try {
-    // Get user input
-    const { email } = req.body;
-
-    // Validate user input
-    if (!email) {
-      return res.status(400).send("Email required");
-    }
-
     // Update user with data in body if exists
-    const user = await User.findOneAndUpdate({ email }, req.body, { returnDocument: "after" });
+    const user = await User.findOneAndUpdate({ _id: new ObjectId(req.user.id) }, req.body, { returnDocument: "after" });
     if (!user) {
       return res.status(409).send("User does not exist");
     }
@@ -134,22 +127,16 @@ exports.changeDetails = async (req, res) => {
     res.status(200).json(user);
 
   } catch (err) {
-    console.log(err);
+    res.status(500).send(JSON.stringify({
+      message: 'Internal Server Error',
+      error: err
+    }));
   }
 }
 
 exports.deleteUser = async (req, res) => {
   try {
-    // Get user input
-    const { email } = req.body;
-
-    // Validate user input
-    if (!email) {
-      return res.status(400).send("Email required");
-    }
-
-    // Validate if user exist in our database
-    const user = await User.findOneAndDelete({ email });
+    const user = await User.findOneAndDelete({ _id: new ObjectId(req.user.id) });
     if (!user) {
       return res.status(409).send("User does not exist");
     }
@@ -157,22 +144,25 @@ exports.deleteUser = async (req, res) => {
     res.status(200).send("Successfully deleted user");
 
   } catch (err) {
-    console.log(err);
+    res.status(500).send(JSON.stringify({
+      message: 'Internal Server Error',
+      error: err
+    }));
   }
 }
 
 exports.changePassword = async (req, res) => {
   try {
     // Get user input
-    const { email, password } = req.body;
+    const { password } = req.body;
 
     // Validate user input
-    if (!(email && password)) {
-      res.status(400).send("Email and new password required");
+    if (!password) {
+      res.status(400).send("Password required");
     }
 
     // Validate if user exist in our database
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ _id: new ObjectId(req.user.id) });
     if (!user) {
       return res.status(409).send("User does not exist");
     }
@@ -181,12 +171,15 @@ exports.changePassword = async (req, res) => {
     encryptedPassword = await bcrypt.hash(password, 10);
   
     // Update the database
-    await User.updateOne({ email }, {$set:{ password:encryptedPassword }});
+    await User.updateOne({ _id: new ObjectId(req.user.id) }, {$set:{ password:encryptedPassword }});
 
     res.status(200).send("Successfully changed password")
 
   } catch (err) {
-    console.log(err)
+    res.status(500).send(JSON.stringify({
+      message: 'Internal Server Error',
+      error: err
+    }))
   }
 }
 
@@ -218,60 +211,69 @@ exports.sendEmailToken = async (req, res) => {
     res.status(200).send("Sent password change email")
 
   } catch (err) {
-    console.log(err)
+    res.status(500).send(JSON.stringify({
+      message: 'Internal Server Error',
+      error: err
+    }))
   }
 }
 
 exports.saveLocation = async (req, res) => {
   try {
-    // Get user input
-    const { email, location } = req.body;
+    const { location } = req.body;
 
-    // Validate user input
-    if (!(email && location)) {
-      return res.status(400).send("Email and single location required");
+    if (!(location && location.name && location.latitude && location.longitude)) {
+      return res.status(400).send("location details are required");
     }
 
-    // Validate if user exist in our database and save new location
-    const user = await User.findOneAndUpdate({ email }, { $addToSet: { locations: location}}, { returnDocument: "after" });
+    const user = await User.findOneAndUpdate(
+      { _id: new ObjectId(req.user.id) },
+      { $addToSet: { locations: location } },
+      { returnDocument: "after" }
+    );
+
     if (!user) {
       return res.status(409).send("User does not exist");
     }
 
-    // remove the password part before sending data back
     user.password = undefined;
 
-    // Return user data
     res.status(200).json(user);
 
   } catch (err) {
-    console.log(err);
+    res.status(500).send(JSON.stringify({
+      message: 'Internal Server Error',
+      error: err
+    }));
   }
 }
 
 exports.deleteLocation = async (req, res) => {
   try {
-    // Get user input
-    const { email, location } = req.body;
+    const { _id } = req.body;
 
-    // Validate user input
-    if (!(email && location)) {
-      return res.status(400).send("Email and single location required");
+    if (!_id) {
+      return res.status(400).send("location id is required");
     }
 
-    // Validate if user exist in our database and delete location
-    const user = await User.findOneAndUpdate({ email }, { $pull: { locations: location}}, { returnDocument: "after" });
+    const user = await User.findOneAndUpdate(
+      { _id: new ObjectId(req.user.id) },
+      { $pull: { locations: { _id: new ObjectId(_id) } } },
+      { returnDocument: "after" }
+    );
+
     if (!user) {
       return res.status(409).send("User does not exist");
     }
 
-    // remove the password part before sending data back
     user.password = undefined;
 
-    // Return user data
     res.status(200).json(user);
 
   } catch (err) {
-    console.log(err);
+    res.status(500).send(JSON.stringify({
+      message: 'Internal Server Error',
+      error: err
+    }));
   }
 }
