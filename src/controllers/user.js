@@ -87,7 +87,7 @@ exports.welcome = async (req, res) => {
 exports.getDetails = async (req, res) => {
   try {
     // Get user input
-    const { email } = req.body;
+    const { email } = req.query;
 
     // Validate user input
     if (!email) {
