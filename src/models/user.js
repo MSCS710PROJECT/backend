@@ -26,7 +26,12 @@ const userSchema = new mongoose.Schema({
   },
 
   // saved locations
-  locations: [locationSchema]
+  locations: [locationSchema],
+
+  searchHistory: [{
+    location: locationSchema,
+    searches: Number
+  }],
 });
 
 module.exports = mongoose.model('User', userSchema);

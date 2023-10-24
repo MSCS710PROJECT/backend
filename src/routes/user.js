@@ -22,4 +22,7 @@ router.delete('/user', auth.isAuthenticated, userController.deleteUser)
 router.post('/userLocation', auth.isAuthenticated, userController.saveLocation)
 router.patch('/userLocation', auth.isAuthenticated, userController.deleteLocation)
 
+router.post('/userHistory', auth.isAuthenticated, userController.saveHistory)
+router.patch('/userHistory', auth.isAuthenticated, userController.deleteHistory)
+
 module.exports = router;
