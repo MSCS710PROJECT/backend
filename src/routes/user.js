@@ -20,6 +20,6 @@ router.delete('/user', auth.isAuthenticated, userController.deleteUser)
 
 // user location data
 router.post('/userLocation', auth.isAuthenticated, userController.saveLocation)
-router.delete('/userLocation', auth.isAuthenticated, userController.deleteLocation)
+router.patch('/userLocation', auth.isAuthenticated, userController.deleteLocation)
 
 module.exports = router;

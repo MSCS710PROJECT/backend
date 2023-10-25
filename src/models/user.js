@@ -1,5 +1,11 @@
 const mongoose = require('mongoose');
 
+const locationSchema = new mongoose.Schema({
+  name: String,
+  latitude: String,
+  longitude: String
+});
+
 const userSchema = new mongoose.Schema({
   // login credentials
   email: String,
@@ -20,7 +26,7 @@ const userSchema = new mongoose.Schema({
   },
 
   // saved locations
-  locations: [String]
+  locations: [locationSchema]
 });
 
 module.exports = mongoose.model('User', userSchema);
