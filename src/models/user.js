@@ -6,6 +6,12 @@ const locationSchema = new mongoose.Schema({
   longitude: String
 });
 
+const routeSchema = new mongoose.Schema({
+  start: locationSchema,
+  end: locationSchema,
+  mode: String
+})
+
 const userSchema = new mongoose.Schema({
   // login credentials
   email: String,
@@ -26,7 +32,14 @@ const userSchema = new mongoose.Schema({
   },
 
   // saved locations
-  locations: [locationSchema]
+  locations: [locationSchema],
+
+  searchHistory: [{
+    location: locationSchema,
+    searches: Number
+  }],
+
+  routes: [routeSchema]
 });
 
 module.exports = mongoose.model('User', userSchema);

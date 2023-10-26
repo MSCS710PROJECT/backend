@@ -277,3 +277,164 @@ exports.deleteLocation = async (req, res) => {
     }));
   }
 }
+
+const precision = 8;
+function locationEquals (loc1, loc2) {
+  if (!(loc1 && loc1.name && loc1.latitude && loc1.longitude) ||
+      !(loc2 && loc2.name && loc2.latitude && loc2.longitude)) {
+    return false;
+  }
+
+  return (loc1.name == loc2.name &&
+    loc1.latitude.substring(0, precision) == loc2.latitude.substring(0, precision) &&
+    loc1.longitude.substring(0, precision) == loc2.longitude.substring(0, precision));
+}
+
+exports.saveHistory = async (req, res) => {
+  try {
+    const { location } = req.body;
+
+    if (!(location && location.name && location.latitude && location.longitude)) {
+      return res.status(400).send("location details are required");
+    }
+
+    // first find if the user exists
+    var user = await User.findOne(
+      { _id: new ObjectId(req.user.id) }
+    );
+
+    if (!user) {
+      return res.status(409).send("User does not exist");
+    }
+
+    // next find if the location has already been searched
+    const locationHistory = user.searchHistory.find(search => locationEquals(search.location, location))
+
+    if (locationHistory) {
+      // if searched before, find and add one to the history
+      user = await User.findOneAndUpdate(
+        { _id: new ObjectId(req.user.id), "searchHistory.location":locationHistory.location},
+        { $set: {"searchHistory.$.searches":locationHistory.searches+1} },
+        { returnDocument: "after" }
+      )
+    } else {
+      // otherwise, add a new entry to the search history
+      user = await User.findOneAndUpdate(
+        { _id: new ObjectId(req.user.id) },
+        { $addToSet: { searchHistory: {location:location, searches:1} } },
+        { returnDocument: "after" }
+      )
+    }
+
+    user.password = undefined;
+
+    res.status(200).json(user);
+
+  } catch (err) {
+    res.status(500).send(JSON.stringify({
+      message: 'Internal Server Error',
+      error: err
+    }));
+  }
+}
+
+exports.deleteHistory = async (req, res) => {
+  try {
+    const { _id } = req.body;
+
+    // make sure there is a provided id
+    if (!_id) {
+      return res.status(400).send("search history id is required");
+    }
+
+    // remove the given id from the searchHistory array (if user exists)
+    const user = await User.findOneAndUpdate(
+      { _id: new ObjectId(req.user.id) },
+      { $pull: { searchHistory: { _id: new ObjectId(_id) } } },
+      { returnDocument: "after" }
+    );
+
+    if (!user) {
+      return res.status(409).send("User does not exist");
+    }
+
+    // remove the password before sending info back
+    user.password = undefined;
+
+    res.status(200).json(user);
+
+  } catch (err) {
+    res.status(500).send(JSON.stringify({
+      message: 'Internal Server Error',
+      error: err
+    }));
+  }
+}
+
+exports.saveRoute = async (req, res) => {
+  try {
+    const { route } = req.body;
+
+    // Check if all of the route information is there
+    if (!(route && route.mode &&
+        route.start.name && route.start.latitude && route.start.longitude &&
+        route.end.name && route.end.latitude && route.end.longitude)) {
+      return res.status(400).send("route details are required (start location, end location, and mode)");
+    }
+
+    // Add route to routes array
+    const user = await User.findOneAndUpdate(
+      { _id: new ObjectId(req.user.id) },
+      { $addToSet: { routes: route } },
+      { returnDocument: "after" }
+    );
+
+    if (!user) {
+      return res.status(409).send("User does not exist");
+    }
+
+    // Remove password before sending info back
+    user.password = undefined;
+
+    res.status(200).json(user);
+
+  } catch (err) {
+    res.status(500).send(JSON.stringify({
+      message: 'Internal Server Error',
+      error: err
+    }));
+  }
+}
+
+exports.deleteRoute = async (req, res) => {
+  try {
+    const { _id } = req.body;
+
+    // Check that there is an ID
+    if (!_id) {
+      return res.status(400).send("route id is required");
+    }
+
+    // Remove associated ID from the routes array
+    const user = await User.findOneAndUpdate(
+      { _id: new ObjectId(req.user.id) },
+      { $pull: { routes: { _id: new ObjectId(_id) } } },
+      { returnDocument: "after" }
+    );
+
+    if (!user) {
+      return res.status(409).send("User does not exist");
+    }
+
+    // Remove password before sending info back
+    user.password = undefined;
+
+    res.status(200).json(user);
+
+  } catch (err) {
+    res.status(500).send(JSON.stringify({
+      message: 'Internal Server Error',
+      error: err
+    }));
+  }
+}
