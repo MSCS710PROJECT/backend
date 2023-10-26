@@ -370,3 +370,71 @@ exports.deleteHistory = async (req, res) => {
     }));
   }
 }
+
+exports.saveRoute = async (req, res) => {
+  try {
+    const { route } = req.body;
+
+    // Check if all of the route information is there
+    if (!(route && route.mode &&
+        route.start.name && route.start.latitude && route.start.longitude &&
+        route.end.name && route.end.latitude && route.end.longitude)) {
+      return res.status(400).send("route details are required (start location, end location, and mode)");
+    }
+
+    // Add route to routes array
+    const user = await User.findOneAndUpdate(
+      { _id: new ObjectId(req.user.id) },
+      { $addToSet: { routes: route } },
+      { returnDocument: "after" }
+    );
+
+    if (!user) {
+      return res.status(409).send("User does not exist");
+    }
+
+    // Remove password before sending info back
+    user.password = undefined;
+
+    res.status(200).json(user);
+
+  } catch (err) {
+    res.status(500).send(JSON.stringify({
+      message: 'Internal Server Error',
+      error: err
+    }));
+  }
+}
+
+exports.deleteRoute = async (req, res) => {
+  try {
+    const { _id } = req.body;
+
+    // Check that there is an ID
+    if (!_id) {
+      return res.status(400).send("route id is required");
+    }
+
+    // Remove associated ID from the routes array
+    const user = await User.findOneAndUpdate(
+      { _id: new ObjectId(req.user.id) },
+      { $pull: { routes: { _id: new ObjectId(_id) } } },
+      { returnDocument: "after" }
+    );
+
+    if (!user) {
+      return res.status(409).send("User does not exist");
+    }
+
+    // Remove password before sending info back
+    user.password = undefined;
+
+    res.status(200).json(user);
+
+  } catch (err) {
+    res.status(500).send(JSON.stringify({
+      message: 'Internal Server Error',
+      error: err
+    }));
+  }
+}
