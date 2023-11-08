@@ -7,7 +7,7 @@ const {ObjectId} = require('mongodb');
 exports.createUser = async (req, res) => {
     try {
       // Get user input
-      const { email, password, firstName, lastName, phoneNumber, alerts} = req.body;
+      const { email, password, firstName, lastName, phoneNumber, alerts, insights} = req.body;
   
       // Validate user input
       if (!(email, password, firstName, lastName, phoneNumber)) {
@@ -31,7 +31,9 @@ exports.createUser = async (req, res) => {
         firstName,
         lastName,
         phoneNumber,
-        alerts
+        alerts,
+        insights,
+        alertPreference
       });
   
       // Create token

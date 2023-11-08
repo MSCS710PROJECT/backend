@@ -39,7 +39,18 @@ const userSchema = new mongoose.Schema({
     searches: Number
   }],
 
-  routes: [routeSchema]
+  routes: [routeSchema],
+
+  insights: {
+    type: Boolean,
+    default: false
+  },
+
+  alertPreference: [
+    {
+      type: String
+    }
+  ]
 });
 
 module.exports = mongoose.model('User', userSchema);
