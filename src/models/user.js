@@ -50,7 +50,49 @@ const userSchema = new mongoose.Schema({
     {
       type: String
     }
-  ]
+  ],
+  settings: {
+    temperature: {
+      min: {
+        type: Number,
+        default: 32
+      },
+      max: {
+        type: Number,
+        default: 86
+      }
+    },
+    uvIndex: {
+      min: {
+        type: Number,
+        default: 3
+      },
+      max: {
+        type: Number,
+        default: 7
+      }
+    },
+    windSpeed: {
+      min: {
+        type: Number,
+        default: 10
+      },
+      max: {
+        type: Number,
+        default: 25
+      }
+    },
+    precipitation: {
+      min: {
+        type: Number,
+        default: 20
+      },
+      max: {
+        type: Number,
+        default: 50
+      }
+    }
+  }
 });
 
 module.exports = mongoose.model('User', userSchema);
