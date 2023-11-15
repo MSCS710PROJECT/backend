@@ -117,6 +117,7 @@ exports.getDetails = async (req, res) => {
 exports.changeDetails = async (req, res) => {
   try {
     // Update user with data in body if exists
+    console.log('test')
     const user = await User.findOneAndUpdate({ _id: new ObjectId(req.user.id) }, req.body, { returnDocument: "after" });
     if (!user) {
       return res.status(409).send("User does not exist");
