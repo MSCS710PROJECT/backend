@@ -60,6 +60,14 @@ const userSchema = new mongoose.Schema({
       max: {
         type: Number,
         default: 86
+      },
+      minC: {
+        type: Number,
+        default: 0
+      },
+      maxC: {
+        type: Number,
+        default: 30
       }
     },
     uvIndex: {
