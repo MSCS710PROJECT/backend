@@ -7,5 +7,6 @@ const weatherRoutes = require('./weather')
 // Mount the individual routers
 router.use('/', userRoutes);
 router.use('/weather', weatherRoutes)
+router.use('/bot', require('./chatbot'));
 
 module.exports = router;
