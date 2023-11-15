@@ -1,7 +1,7 @@
 const axios = require('axios');
 
-const OPENAI_API_URL = 'https://api.openai.com/v1/engines/davinci/completions';
-const OPENAI_API_KEY = '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';
+const OPENAI_API_URL = 'https://api.openai.com/v1/engines/text-curie-001/completions';
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 
 exports.getResponse = async (req, res) => {
     const userMessage = req.body.message;
