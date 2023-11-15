@@ -1,0 +1,614 @@
+openapi: 3.0.3
+info:
+  title: Weather Dashboard Backend - OpenAPI 3.0
+  description: Backend API for Weather Dashboard
+  contact:
+    email: weatherdashboard00@gmail.com
+  version: 1.0.0
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+  - url: https://us-central1-marist-weather-dashboard.cloudfunctions.net/api
+paths:
+  /create:
+    post:
+      summary: Creates a new user
+      description: 'Creates a new user with the specified attributes'
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                phoneNumber:
+                  type: string
+                alerts:
+                  type: boolean
+                  default: false
+      responses:
+        201:
+          $ref: '#/components/responses/200Success'
+        400:
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                type: object 
+                properties:
+                  message:
+                    type: string
+                    default: 'Email, password, name, and phone number required'
+        409:
+          description: User already exists
+          content:
+            application/json:
+              schema:
+                type: object 
+                properties:
+                  message:
+                    type: string
+                    default: 'User Already Exist. Please Login'
+        500:
+          $ref: '#/components/responses/500Error'
+  /login:
+    post:
+      summary: Login
+      description: 'Login to a given user account'
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        200:
+          $ref: '#/components/responses/200Success'
+        400:
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                type: object 
+                properties:
+                  message:
+                    type: string
+                    default: 'Email and password required'
+        401:
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object 
+                properties:
+                  message:
+                    type: string
+                    default: 'Invalid credentials'
+        500:
+          $ref: '#/components/responses/500Error'
+  /resetPassword:
+    post:
+      summary: Reset password
+      description: 'Reset the password of a given account'
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                password:
+                  type: string
+      responses:
+        200:
+          $ref: '#/components/responses/200Success'
+        400:
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                type: object 
+                properties:
+                  message:
+                    type: string
+                    default: 'Password required'
+        401:
+          $ref: '#/components/responses/401Unauth'
+        403:
+          $ref: '#/components/responses/403NoToken'
+        409:
+          $ref: '#/components/responses/409NoUser'
+        500:
+          $ref: '#/components/responses/500Error'
+      security:
+        - userToken: []
+  /forgotPassword:
+    post:
+      summary: Forgot password
+      description: 'Send a password reset email'
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object 
+                properties:
+                  message:
+                    type: string
+                    default: 'Sent password change email'
+        400:
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                type: object 
+                properties:
+                  message:
+                    type: string
+                    default: 'Email required'
+        409:
+          $ref: '#/components/responses/409NoUser'
+        500:
+          $ref: '#/components/responses/500Error'
+  /user:
+    get:
+      summary: Get user details
+      description: 'Get details about the user'
+      parameters: []
+      responses:
+        200:
+          $ref: '#/components/responses/200Success'
+        401:
+          $ref: '#/components/responses/401Unauth'
+        403:
+          $ref: '#/components/responses/403NoToken'
+        409:
+          $ref: '#/components/responses/409NoUser'
+        500:
+          $ref: '#/components/responses/500Error'
+      security:
+        - userToken: []
+    patch:
+      summary: Change user details
+      description: 'Change details about the user'
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        200:
+          $ref: '#/components/responses/200Success'
+        401:
+          $ref: '#/components/responses/401Unauth'
+        403:
+          $ref: '#/components/responses/403NoToken'
+        409:
+          $ref: '#/components/responses/409NoUser'
+        500:
+          $ref: '#/components/responses/500Error'
+      security:
+        - userToken: []
+    delete:
+      summary: Delete user 
+      description: 'Delete the user'
+      parameters: []
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object 
+                properties:
+                  message:
+                    type: string
+                    default: 'Successfully deleted user'
+        401:
+          $ref: '#/components/responses/401Unauth'
+        403:
+          $ref: '#/components/responses/403NoToken'
+        409:
+          $ref: '#/components/responses/409NoUser'
+        500:
+          $ref: '#/components/responses/500Error'
+      security:
+        - userToken: []
+  /userLocation:
+    post:
+      summary: Save location
+      description: 'Save a new location'
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Location'
+      responses:
+        200:
+          $ref: '#/components/responses/200Success'
+        400:
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                type: object 
+                properties:
+                  message:
+                    type: string
+                    default: 'Location details are required'
+        401:
+          $ref: '#/components/responses/401Unauth'
+        403:
+          $ref: '#/components/responses/403NoToken'
+        409:
+          $ref: '#/components/responses/409NoUser'
+        500:
+          $ref: '#/components/responses/500Error'
+      security:
+        - userToken: []
+    patch:
+      summary: Delete location
+      description: 'Remove a location from the saved list'
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                _id:
+                  type: string
+      responses:
+        200:
+          $ref: '#/components/responses/200Success'
+        400:
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                type: object 
+                properties:
+                  message:
+                    type: string
+                    default: 'Location id is required'
+        401:
+          $ref: '#/components/responses/401Unauth'
+        403:
+          $ref: '#/components/responses/403NoToken'
+        409:
+          $ref: '#/components/responses/409NoUser'
+        500:
+          $ref: '#/components/responses/500Error'
+      security:
+        - userToken: []
+  /userHistory:
+    post:
+      summary: Save search history
+      description: 'Save a location into search history'
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Location'
+      responses:
+        200:
+          $ref: '#/components/responses/200Success'
+        400:
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                type: object 
+                properties:
+                  message:
+                    type: string
+                    default: 'Location details are required'
+        401:
+          $ref: '#/components/responses/401Unauth'
+        403:
+          $ref: '#/components/responses/403NoToken'
+        409:
+          $ref: '#/components/responses/409NoUser'
+        500:
+          $ref: '#/components/responses/500Error'
+      security:
+        - userToken: []
+    patch:
+      summary: Delete search history entry
+      description: 'Remove a location from the history'
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                _id:
+                  type: string
+      responses:
+        200:
+          $ref: '#/components/responses/200Success'
+        400:
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                type: object 
+                properties:
+                  message:
+                    type: string
+                    default: 'Search history id is required'
+        401:
+          $ref: '#/components/responses/401Unauth'
+        403:
+          $ref: '#/components/responses/403NoToken'
+        409:
+          $ref: '#/components/responses/409NoUser'
+        500:
+          $ref: '#/components/responses/500Error'
+      security:
+        - userToken: []
+  /userRoute:
+    post:
+      summary: Save travel route
+      description: 'Save a new travel route'
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Route'
+      responses:
+        200:
+          $ref: '#/components/responses/200Success'
+        400:
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                type: object 
+                properties:
+                  message:
+                    type: string
+                    default: 'Route details are required'
+        401:
+          $ref: '#/components/responses/401Unauth'
+        403:
+          $ref: '#/components/responses/403NoToken'
+        409:
+          $ref: '#/components/responses/409NoUser'
+        500:
+          $ref: '#/components/responses/500Error'
+      security:
+        - userToken: []
+    patch:
+      summary: Delete travel route
+      description: 'Remove a route from the saved list'
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                _id:
+                  type: string
+      responses:
+        200:
+          $ref: '#/components/responses/200Success'
+        400:
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                type: object 
+                properties:
+                  message:
+                    type: string
+                    default: 'Route id is required'
+        401:
+          $ref: '#/components/responses/401Unauth'
+        403:
+          $ref: '#/components/responses/403NoToken'
+        409:
+          $ref: '#/components/responses/409NoUser'
+        500:
+          $ref: '#/components/responses/500Error'
+      security:
+        - userToken: []
+  /bot/query:
+    post:
+      summary: Chatbot
+      description: 'Ask the chat bot a question'
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object 
+                properties:
+                  message:
+                    type: string
+                    description: 'Chatbot response'
+        401:
+          $ref: '#/components/responses/401Unauth'
+        403:
+          $ref: '#/components/responses/403NoToken'
+        500:
+          $ref: '#/components/responses/500Error'
+      security:
+        - userToken: []
+components:
+  schemas:
+    Location:
+      type: object
+      description: A named location
+      properties:
+        name:
+          type: string
+        latitude: 
+          type: string
+        longitude:
+          type: string
+    Route:
+      type: object
+      description: A travel route defined by a start and end
+      properties:
+        start:
+          $ref: '#/components/schemas/Location'
+        end:
+          $ref: '#/components/schemas/Location'
+        mode:
+          type: string
+          description: Mode of trasportation
+          enum:
+            - Driving
+            - Walking
+            - Bicycling
+            - Transit
+    User:
+      type: object
+      description: A single user of the weather dashboard
+      properties:
+        email:
+          type: string
+        token:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        phoneNumber:
+          type: string
+        alerts:
+          type: boolean
+          description: Whether or not the user wants to recieve alerts
+          default: false
+        metric:
+          type: boolean
+          description: Whether data should be displayed in metric or imperial units
+          default: false
+        locations:
+          type: array
+          description: Saved locations
+          default: []
+          items:
+            $ref: '#/components/schemas/Location'
+        searchHistory:
+          type: array
+          description: Search history of locations
+          default: []
+          items:
+            type: object
+            properties:
+              location:
+                $ref: '#/components/schemas/Location'
+              searches:
+                type: integer
+        routes:
+          type: array
+          description: Saved routes
+          default: []
+          items:
+            $ref: '#/components/schemas/Route'
+  securitySchemes:
+    userToken:
+      type: http
+      bearerFormat: JWT
+      scheme: bearer
+  responses:
+    200Success:
+      description: Successful operation
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/User'
+    401Unauth:
+      description: Unauthorized token
+      content:
+        application/json:
+          schema:
+            type: object 
+            properties:
+              message:
+                type: string
+                default: "Unauthorized"
+    403NoToken:
+      description: No token provided
+      content:
+        application/json:
+          schema:
+            type: object 
+            properties:
+              message:
+                type: string
+                default: "A token is required for authentication"
+    409NoUser:
+      description: User does not exist
+      content:
+        application/json:
+          schema:
+            type: object 
+            properties:
+              message:
+                type: string
+                default: "User does not exist"
+    500Error:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            type: object 
+            properties:
+              message:
+                type: string
+                default: "Internal server error"
