@@ -1,7 +1,8 @@
 const axios = require('axios');
+const functions = require('firebase-functions');
 
 const OPENAI_API_URL = 'https://api.openai.com/v1/engines/text-curie-001/completions';
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const OPENAI_API_KEY = functions.config().openapi?.key || process.env.OPENAI_API_KEY;
 
 exports.getResponse = async (req, res) => {
     const userMessage = req.body.message;
