@@ -221,6 +221,37 @@ exports.sendEmailToken = async (req, res) => {
   }
 }
 
+exports.sendEmailAlert = async (req, res) => {
+  try {
+    // Get user input
+    const { message } = req.body;
+
+    // Validate user input
+    if (!message) {
+      res.status(400).send("Message required");
+    }
+
+    // Validate if user exist in our database
+    const user = await User.findOne({ _id: new ObjectId(req.user.id) });
+    if (!user) {
+      return res.status(409).send("User does not exist");
+    }
+
+    // Send an email only if alerts are enabled for this user
+    if (user.alerts) {
+      emailService.sendEmail(user.email, "Weather Dashboard Alert", message)
+    }
+
+    res.status(200).send("Sent weather alert to email")
+
+  } catch (err) {
+    res.status(500).send(JSON.stringify({
+      message: 'Internal Server Error',
+      error: err
+    }))
+  }
+}
+
 exports.saveLocation = async (req, res) => {
   try {
     const { location } = req.body;

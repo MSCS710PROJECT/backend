@@ -28,4 +28,7 @@ router.patch('/userHistory', auth.isAuthenticated, userController.deleteHistory)
 router.post('/userRoute', auth.isAuthenticated, userController.saveRoute)
 router.patch('/userRoute', auth.isAuthenticated, userController.deleteRoute)
 
+// alerts
+router.post('/emailAlert', auth.isAuthenticated, userController.sendEmailAlert)
+
 module.exports = router;
