@@ -454,6 +454,43 @@ paths:
           $ref: '#/components/responses/500Error'
       security:
         - userToken: []
+  /emailAlert:
+    post:
+      summary: Send email alert
+      description: 'Send an alert to the user via email'
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+      responses:
+        200:
+          $ref: '#/components/responses/200Success'
+        400:
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                type: object 
+                properties:
+                  message:
+                    type: string
+                    default: 'Message required'
+        401:
+          $ref: '#/components/responses/401Unauth'
+        403:
+          $ref: '#/components/responses/403NoToken'
+        409:
+          $ref: '#/components/responses/409NoUser'
+        500:
+          $ref: '#/components/responses/500Error'
+      security:
+        - userToken: []
   /bot/query:
     post:
       summary: Chatbot
@@ -479,6 +516,45 @@ paths:
                   message:
                     type: string
                     description: 'Chatbot response'
+        401:
+          $ref: '#/components/responses/401Unauth'
+        403:
+          $ref: '#/components/responses/403NoToken'
+        500:
+          $ref: '#/components/responses/500Error'
+      security:
+        - userToken: []
+  /bot/attractions:
+    post:
+      summary: Chatbot Attractions
+      description: 'Ask the chat bot for tourist attractions'
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                start:
+                  type: string
+                  description: 'Start Location'
+                end:
+                  type: string
+                  description: 'End Location'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object 
+                properties:
+                  locations:
+                    type: array
+                    description: 'Tourist attractions'
+                    items:
+                      type: string
         401:
           $ref: '#/components/responses/401Unauth'
         403:
