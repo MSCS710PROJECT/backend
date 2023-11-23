@@ -6,8 +6,10 @@ const axios = require('axios');
 const routes = require('./routes/index');
 const helmet = require('helmet');
 const db = require('./db');
-const port = 3000;
+const port = 3001;
 const TOMORROW_API_BASE_URL = 'https://api.tomorrow.io/v4';
+
+process.env.OPENAI_API_KEY = process.env.OPENAI_API_KEY || functions.config().openapi?.key;
 
 const app = express();
 
