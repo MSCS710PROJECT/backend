@@ -32,7 +32,8 @@
     "helmet": "^7.0.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^7.5.2",
-    "nodemailer": "^6.9.5"
+    "nodemailer": "^6.9.5",
+    "openai": "^4.20.0"
   },
   "devDependencies": {
     "firebase-functions-test": "^3.1.0",
