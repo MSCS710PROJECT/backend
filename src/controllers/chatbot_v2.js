@@ -38,15 +38,15 @@ exports.getResponse = async (req, res) => {
 };
 
 exports.getTouristAttractions = async (req, res) => {
-  const { start, end } = req.body;
+  const { start, end, waypoints, query = "tourist attractions" } = req.body;
 
-  const cacheKey = `attractions_${start}_${end}`;
+  const cacheKey = `${query}_${start}_${end}`;
 
   if (cache.has(cacheKey)) {
     return res.json({ attractions: cache.get(cacheKey) });
   }
 
-  const message = `What are 10 priority tourist attractions along the route between ${start} and ${end},starting 200 miles away from origin. Attractions should be evenly spaced across all the states along the route and should be within 50 miles range (deviuation) of the route. Include approximate driving duration from Poughkeepsie and the distance from the origin for each attraction.`;
+  const message = `What are 10 priority ${query} along the driving route between ${start} and ${end} starting 200 miles from ${start}, with ${waypoints} waypoints on the route. locations should be evenly spread and spaced across all the states along the driving route and should be within 30 miles range (deviuation) of the route. Include approximate driving duration from Poughkeepsie and the distance from the origin for each location. Order the array in ascending order of distance or next state from the origin.`;
 
   try {
     const response = await openai.chat.completions.create({
@@ -54,7 +54,7 @@ exports.getTouristAttractions = async (req, res) => {
         {
           role: "system",
           content:
-            "You are a helpful assistant designed to output JSON array named attractions with fields name (string), state (string), duration (number in hours, minutes should be rounded to the nearest decimal of hours), distance (number in miles) and coordinates (lat and lng object).",
+            `You are a helpful assistant designed to output consistent priority ${query} along the route. The response should be a JSON array named attractions with fields name (string), state (string), duration (number in hours, minutes should be rounded to the nearest decimal of hours), distance (number in miles) and coordinates (lat and lng object).`,
         },
         { role: "user", content: message },
       ],
