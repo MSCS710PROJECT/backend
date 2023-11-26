@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs')
 const User = require('../models/user');
 const jwt = require('../auth')
 const emailService = require('../services/email');
+const phoneService = require('../services/phone');
 const {ObjectId} = require('mongodb');
 
 exports.createUser = async (req, res) => {
@@ -240,6 +241,43 @@ exports.sendEmailAlert = async (req, res) => {
     // Send an email only if alerts are enabled for this user
     if (user.alerts) {
       emailService.sendEmail(user.email, "Weather Dashboard Alert", message)
+    }
+
+    res.status(200).send("Sent weather alert to email")
+
+  } catch (err) {
+    res.status(500).send(JSON.stringify({
+      message: 'Internal Server Error',
+      error: err
+    }))
+  }
+}
+
+exports.sendTextAlert = async (req, res) => {
+  try {
+    // Get user input
+    const { message } = req.body;
+
+    // Validate user input
+    if (!message) {
+      res.status(400).send("Message required");
+    }
+
+    // Validate if user exist in our database
+    const user = await User.findOne({ _id: new ObjectId(req.user.id) });
+    if (!user) {
+      return res.status(409).send("User does not exist");
+    }
+
+    if (!user.phoneNumber) {
+      return res.status(200).send("User does not have a phone number");
+    }
+
+    // Send an email only if alerts are enabled for this user
+    if (user.alerts) {
+      const resp = await phoneService.sendText(user.phoneNumber, message)
+
+      console.log(resp)
     }
 
     res.status(200).send("Sent weather alert to email")
