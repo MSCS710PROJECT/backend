@@ -34,8 +34,11 @@
     "lru-cache": "^10.1.0",
     "mongoose": "^7.5.2",
     "node-cache": "^5.1.2",
+    "node-cron": "^3.0.3",
     "nodemailer": "^6.9.5",
-    "openai": "^4.20.0"
+    "openai": "^4.20.0",
+    "twilio": "^4.19.0",
+    "tz-lookup": "^6.1.25"
   },
   "devDependencies": {
     "firebase-functions-test": "^3.1.0",

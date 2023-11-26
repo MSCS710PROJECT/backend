@@ -30,5 +30,6 @@ router.patch('/userRoute', auth.isAuthenticated, userController.deleteRoute)
 
 // alerts
 router.post('/emailAlert', auth.isAuthenticated, userController.sendEmailAlert)
+router.post('/textAlert', auth.isAuthenticated, userController.sendTextAlert)
 
 module.exports = router;

@@ -6,8 +6,9 @@ const axios = require('axios');
 const routes = require('./routes/index');
 const helmet = require('helmet');
 const db = require('./db');
-const port = 3001;
+const port = 5056;
 const TOMORROW_API_BASE_URL = 'https://api.tomorrow.io/v4';
+require('./services/cronJob');
 
 process.env.OPENAI_API_KEY = process.env.OPENAI_API_KEY || functions.config().openapi?.key;
 

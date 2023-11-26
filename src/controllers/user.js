@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs')
 const User = require('../models/user');
 const jwt = require('../auth')
 const emailService = require('../services/email');
+const phoneService = require('../services/phone');
 const {ObjectId} = require('mongodb');
 
 exports.createUser = async (req, res) => {
@@ -252,6 +253,43 @@ exports.sendEmailAlert = async (req, res) => {
   }
 }
 
+exports.sendTextAlert = async (req, res) => {
+  try {
+    // Get user input
+    const { message } = req.body;
+
+    // Validate user input
+    if (!message) {
+      res.status(400).send("Message required");
+    }
+
+    // Validate if user exist in our database
+    const user = await User.findOne({ _id: new ObjectId(req.user.id) });
+    if (!user) {
+      return res.status(409).send("User does not exist");
+    }
+
+    if (!user.phoneNumber) {
+      return res.status(200).send("User does not have a phone number");
+    }
+
+    // Send an email only if alerts are enabled for this user
+    if (user.alerts) {
+      const resp = await phoneService.sendText(user.phoneNumber, message)
+
+      console.log(resp)
+    }
+
+    res.status(200).send("Sent weather alert to email")
+
+  } catch (err) {
+    res.status(500).send(JSON.stringify({
+      message: 'Internal Server Error',
+      error: err
+    }))
+  }
+}
+
 exports.saveLocation = async (req, res) => {
   try {
     const { location } = req.body;
@@ -284,17 +322,27 @@ exports.saveLocation = async (req, res) => {
 
 exports.deleteLocation = async (req, res) => {
   try {
-    const { _id } = req.body;
+    const { _id, update, alerts } = req.body;
 
     if (!_id) {
       return res.status(400).send("location id is required");
     }
 
-    const user = await User.findOneAndUpdate(
-      { _id: new ObjectId(req.user.id) },
-      { $pull: { locations: { _id: new ObjectId(_id) } } },
-      { returnDocument: "after" }
-    );
+    let user;
+
+    if (update) {
+      user = await User.findOneAndUpdate(
+        { _id: new ObjectId(req.user.id), "locations._id": new ObjectId(_id) },
+        { $set: { "locations.$.alerts": alerts } },
+        { returnDocument: "after" }
+      );
+    } else {
+      user = await User.findOneAndUpdate(
+        { _id: new ObjectId(req.user.id) },
+        { $pull: { locations: { _id: new ObjectId(_id) } } },
+        { returnDocument: "after" }
+      );
+    }
 
     if (!user) {
       return res.status(409).send("User does not exist");
