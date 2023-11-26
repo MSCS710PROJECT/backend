@@ -322,17 +322,27 @@ exports.saveLocation = async (req, res) => {
 
 exports.deleteLocation = async (req, res) => {
   try {
-    const { _id } = req.body;
+    const { _id, update, alerts } = req.body;
 
     if (!_id) {
       return res.status(400).send("location id is required");
     }
 
-    const user = await User.findOneAndUpdate(
-      { _id: new ObjectId(req.user.id) },
-      { $pull: { locations: { _id: new ObjectId(_id) } } },
-      { returnDocument: "after" }
-    );
+    let user;
+
+    if (update && alerts) {
+      user = await User.findOneAndUpdate(
+        { _id: new ObjectId(req.user.id) },
+        { alerts },
+        { returnDocument: "after" }
+      );
+    } else {
+      user = await User.findOneAndUpdate(
+        { _id: new ObjectId(req.user.id) },
+        { $pull: { locations: { _id: new ObjectId(_id) } } },
+        { returnDocument: "after" }
+      );
+    }
 
     if (!user) {
       return res.status(409).send("User does not exist");

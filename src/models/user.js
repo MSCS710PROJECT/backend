@@ -4,7 +4,10 @@ const locationSchema = new mongoose.Schema({
   name: String,
   latitude: String,
   longitude: String,
-  alerts: Boolean
+  alerts: {
+    type: Boolean,
+    default: false
+  }
 });
 
 const routeSchema = new mongoose.Schema({
