@@ -330,7 +330,7 @@ exports.deleteLocation = async (req, res) => {
 
     let user;
 
-    if (update && alerts) {
+    if (update) {
       user = await User.findOneAndUpdate(
         { _id: new ObjectId(req.user.id) },
         { alerts },
