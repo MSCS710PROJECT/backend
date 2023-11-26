@@ -332,8 +332,8 @@ exports.deleteLocation = async (req, res) => {
 
     if (update) {
       user = await User.findOneAndUpdate(
-        { _id: new ObjectId(req.user.id) },
-        { alerts },
+        { _id: new ObjectId(req.user.id), "locations._id": new ObjectId(_id) },
+        { $set: { "locations.$.alerts": alerts } },
         { returnDocument: "after" }
       );
     } else {
