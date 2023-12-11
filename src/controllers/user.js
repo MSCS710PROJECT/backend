@@ -33,8 +33,7 @@ exports.createUser = async (req, res) => {
         lastName,
         phoneNumber,
         alerts,
-        insights,
-        alertPreference
+        insights
       });
   
       // Create token
